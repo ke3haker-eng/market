@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#4F46E5"><title>كاشير الدكان</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--p:#4F46E5;--ok:#10B981;--bad:#EF4444;--bg:#F8FAFC;--cd:#fff;--in:#F1F5F9;--t:#1E293B;--t2:#64748B;--b:#E2E8F0}
+@media(prefers-color-scheme:dark){:root{--bg:#0F172A;--cd:#1E293B;--in:#334155;--t:#F1F5F9;--t2:#94A3B8;--b:#334155}}
+*{box-sizing:border-box;margin:0}
+body{font-family:Tajawal,system-ui,sans-serif;background:var(--bg);color:var(--t);padding-bottom:150px}
+header{background:var(--p);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;font-weight:700;font-size:1.2rem}
+main{padding:14px}
+.bar{display:flex;gap:8px;margin-bottom:12px}
+input,select{width:100%;padding:12px;border-radius:12px;border:1px solid var(--b);background:var(--in);color:var(--t);font:inherit;font-size:1rem}
+button{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:inherit;border:0;cursor:pointer;border-radius:12px;padding:12px 16px;background:var(--in);color:var(--t)}
+.pr{background:var(--p);color:#fff;font-weight:700}.dn{background:var(--bad);color:#fff}
+.ib{width:48px;padding:0;flex:none;font-size:1.3rem}
+.cd{background:var(--cd);border:1px solid var(--b);border-radius:16px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.cd .i{flex:1;min-width:0}.cd b{display:block}.cd small{color:var(--t2)}
+.q{display:flex;align-items:center;gap:8px}.q button{width:36px;height:36px;padding:0}
+.ic{flex:none}.em{text-align:center;color:var(--t2);padding:40px 10px}
+#tot{position:fixed;inset:auto 0 calc(62px + env(safe-area-inset-bottom)) 0;background:var(--cd);border-top:1px solid var(--b);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:1.2rem}
+#tot span{color:var(--ok);font-size:1.5rem}
+nav{position:fixed;inset:auto 0 0 0;display:flex;background:var(--cd);border-top:1px solid var(--b);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex-direction:column;gap:2px;font-size:.8rem;flex:1;border-radius:0;background:none;padding:14px;color:var(--t2)}nav .on{color:var(--p);font-weight:700}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;z-index:5}
+.md{background:var(--cd);width:100%;border-radius:20px 20px 0 0;padding:18px;display:grid;gap:10px;max-height:90vh;overflow:auto}
+#cam{position:fixed;inset:0;background:#000;z-index:9}#cam video{width:100%;height:100%;object-fit:cover}
+.fr{position:absolute;inset:30% 10%;border:3px solid #fff8;border-radius:16px}
+.x{position:absolute;top:calc(14px + env(safe-area-inset-top));left:14px}
+.ht{position:absolute;bottom:12%;width:100%;text-align:center;color:#fff}
+#ts{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 18px;border-radius:99px;z-index:20;max-width:90%}
+</style></head><body>
+<header id="hd"></header><main id="app"></main><div id="tot"></div>
+<nav><button data-a="tab" data-t="sell" id="n1"></button><button data-a="tab" data-t="prod" id="n2"></button></nav>
+<script>
+const I={cart:'<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/>',
+box:'<path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/><polyline points="3.3 7 12 12 20.7 7"/><line x1="12" y1="22" x2="12" y2="12"/>',
+cam:'<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>',
+edit:'<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/>',
+x:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+minus:'<line x1="5" y1="12" x2="19" y2="12"/>'};
+const ic=(n,s=20)=>'<svg class="ic" width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+I[n]+'</svg>';
+const $=s=>document.querySelector(s),L=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch{return d}};
+let P=L('sh_p',[]),C=L('sh_c',[]),tab='sell',last='',lt=0,stream,tm,zx,onScan;
+const save=()=>{localStorage.setItem('sh_p',JSON.stringify(P));localStorage.setItem('sh_c',JSON.stringify(C))};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const m=n=>(Math.round(n*100)/100).toLocaleString('en-US',{maximumFractionDigits:2});
+const prod=id=>P.find(p=>p.id===id);
+const tot=l=>{const p=prod(l.id);return p?(p.u==='kg'?p.price*l.g/1000:p.price*l.qty):0};
+function toast(t){const d=document.createElement('div');d.id='ts';d.textContent=t;document.body.append(d);setTimeout(()=>d.remove(),2200)}
+function modal(h){closeM();const o=document.createElement('div');o.className='ov';o.id='mo';o.innerHTML='<div class="md">'+h+'</div>';o.onclick=e=>{if(e.target===o)closeM()};document.body.append(o)}
+const closeM=()=>$('#mo')?.remove();
+function render(){
+  C=C.filter(l=>prod(l.id));
+  $('#n1').className=tab=='sell'?'on':'';$('#n2').className=tab=='prod'?'on':'';
+  $('#hd').textContent=tab=='sell'?'قائمة المشتريات':'المنتجات ('+P.length+')';
+  $('#tot').style.display=tab=='sell'?'flex':'none';
+  if(tab=='sell'){
+    $('#app').innerHTML='<div class="bar"><input id="code" placeholder="باركود أو اسم المنتج" enterkeyhint="search" autocomplete="off"><button class="ib pr" data-a="cam">'+ic('cam',22)+'</button></div><div id="sug"></div>'+
+    (C.length?C.map(l=>{const p=prod(l.id),k=p.u=='kg';return '<div class="cd"><div class="i"><b>'+esc(p.name)+'</b><small>'+(k?l.g+' جم × '+m(p.price)+' / كجم':m(p.price)+' للقطعة')+'</small></div>'+
+      (k?'<button data-a="wt" data-id="'+p.id+'">'+ic('edit')+'</button>':'<div class="q"><button data-a="pl" data-id="'+p.id+'">'+ic('plus',18)+'</button><b>'+l.qty+'</b><button data-a="mi" data-id="'+p.id+'">'+ic('minus',18)+'</button></div>')+
+      '<b>'+m(tot(l))+'</b><button data-a="rm" data-id="'+p.id+'">'+ic('x',18)+'</button></div>'}).join(''):'<div class="em">القائمة فارغة<br>امسح باركود أو اكتب اسم المنتج</div>');
+    $('#tot').innerHTML='<div>الإجمالي <span>'+m(C.reduce((s,l)=>s+tot(l),0))+'</span></div><button class="pr" data-a="fin">إنهاء</button>';
+    const c=$('#code');c.oninput=()=>{const v=c.value.trim().toLowerCase();$('#sug').innerHTML=v?P.filter(p=>p.name.toLowerCase().includes(v)||(p.bc||'').includes(v)).slice(0,5).map(p=>'<div class="cd" data-a="pick" data-id="'+p.id+'"><div class="i"><b>'+esc(p.name)+'</b></div><b>'+m(p.price)+(p.u=='kg'?' /كجم':'')+'</b></div>').join(''):''};
+    c.onkeydown=e=>{if(e.key!='Enter')return;const v=c.value.trim();if(!v)return;const p=P.find(x=>x.bc===v)||(P.filter(x=>x.name.includes(v)).length==1&&P.find(x=>x.name.includes(v)));
+      if(p){add(p);c.value='';c.oninput()}else if(/^\d+$/.test(v)){toast('غير مسجّل — أضفه الآن');form(null,v)}else toast('لا يوجد منتج بهذا الاسم')};
+  }else{
+    $('#app').innerHTML='<div class="bar"><input id="sq" placeholder="بحث..."><button class="pr" data-a="new">'+ic('plus',18)+' إضافة</button></div><div id="pl"></div>';
+    const draw=()=>{const v=$('#sq').value.trim().toLowerCase();const r=P.filter(p=>!v||p.name.toLowerCase().includes(v)||(p.bc||'').includes(v));
+      $('#pl').innerHTML=r.length?r.map(p=>'<div class="cd" data-a="edit" data-id="'+p.id+'"><div class="i"><b>'+esc(p.name)+'</b><small>'+esc(p.bc||'بدون باركود')+'</small></div><b>'+m(p.price)+(p.u=='kg'?' /كجم':'')+'</b></div>').join(''):'<div class="em">لا توجد منتجات</div>'};
+    $('#sq').oninput=draw;draw();
+  }
+}
+function add(p){
+  if(p.u=='kg')return askW(p,false);
+  const l=C.find(x=>x.id==p.id);l?l.qty++:C.push({id:p.id,qty:1});save();render();navigator.vibrate?.(60);toast('أُضيف: '+p.name)
+}
+function askW(p,rep){
+  const l=C.find(x=>x.id==p.id);
+  modal('<b>'+esc(p.name)+' — '+m(p.price)+' / كجم</b><input id="g" type="number" inputmode="decimal" placeholder="الوزن بالجرام" value="'+(rep&&l?l.g:'')+'"><div id="gp" style="font-size:1.4rem;font-weight:700;color:var(--ok)">0</div><button class="pr" id="gok">تأكيد</button>');
+  const g=$('#g');g.oninput=()=>$('#gp').textContent=m(p.price*(+g.value||0)/1000);g.oninput();setTimeout(()=>g.focus(),50);
+  $('#gok').onclick=()=>{const w=+g.value;if(!(w>0))return toast('أدخل الوزن');l?(l.g=rep?w:l.g+w):C.push({id:p.id,g:w});save();closeM();render();paused=false};
+  const o=$('#mo');o.style.zIndex=12;o.onclick=e=>{if(e.target===o){closeM();paused=false}}
+}
+function form(id,bc){
+  const p=id?prod(id):{bc:bc||'',name:'',price:'',u:'pc'};
+  modal('<b>'+(id?'تعديل منتج':'منتج جديد')+'</b><div class="bar" style="margin:0"><input id="fb" placeholder="الباركود" value="'+esc(p.bc||'')+'"><button class="ib" data-a="scf">'+ic('cam',22)+'</button></div><input id="fn" placeholder="اسم المنتج" value="'+esc(p.name)+'"><input id="fp" type="number" inputmode="decimal" placeholder="السعر" value="'+p.price+'"><select id="fu"><option value="pc">يُباع بالقطعة</option><option value="kg"'+(p.u=='kg'?' selected':'')+'>يُباع بالكيلو (السعر لكل كجم)</option></select><button class="pr" id="fs">حفظ</button>'+(id?'<button class="dn" id="fd">حذف المنتج</button>':''));
+  $('#fs').onclick=()=>{const bc=$('#fb').value.trim(),name=$('#fn').value.trim(),price=+$('#fp').value;
+    if(!name||!(price>=0)||$('#fp').value==='')return toast('أدخل الاسم والسعر');
+    if(bc&&P.some(x=>x.bc===bc&&x.id!=id))return toast('هذا الباركود مسجّل لمنتج آخر');
+    const d={bc,name,price,u:$('#fu').value};id?Object.assign(p,d):P.push({id:Date.now().toString(36),...d});save();closeM();render()};
+  if(id)$('#fd').onclick=()=>{if(confirm('حذف هذا المنتج؟')){P=P.filter(x=>x.id!=id);save();closeM();render()}}
+}
+let paused=false;
+const loadZX=()=>new Promise((r,j)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';s.onload=r;s.onerror=j;document.head.append(s)});
+function hit(code){if(paused||(code==last&&Date.now()-lt<1800))return;last=code;lt=Date.now();onScan(code)}
+async function openCam(cb){
+  onScan=cb;const o=document.createElement('div');o.id='cam';o.innerHTML='<video id="v" playsinline muted></video><div class="fr"></div><button class="x dn" data-a="camx">'+ic('x',18)+' إغلاق</button><div class="ht">وجّه الباركود نحو الكاميرا</div>';document.body.append(o);
+  try{
+    if('BarcodeDetector' in window){
+      const det=new BarcodeDetector(),v=$('#v');stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});v.srcObject=stream;await v.play();
+      const tick=async()=>{if(!stream)return;try{const r=await det.detect(v);if(r[0])hit(r[0].rawValue)}catch{}tm=setTimeout(tick,200)};tick();
+    }else{await loadZX();zx=new ZXing.BrowserMultiFormatReader();zx.decodeFromVideoDevice(undefined,'v',r=>{if(r)hit(r.getText())})}
+  }catch(e){closeCam();toast('تعذّر فتح الكاميرا — اسمح بالإذن وافتح التطبيق عبر HTTPS')}
+}
+function closeCam(){clearTimeout(tm);stream?.getTracks().forEach(t=>t.stop());stream=null;try{zx?.reset()}catch{}zx=null;$('#cam')?.remove();paused=false}
+const sellScan=code=>{const p=P.find(x=>x.bc===code);if(!p)return toast('غير مسجّل: '+code);if(p.u=='kg')paused=true;add(p)};
+const A={
+  tab:(_,b)=>{tab=b.dataset.t;render()},cam:()=>openCam(sellScan),camx:closeCam,
+  pick:id=>{add(prod(id));$('#code').value='';$('#sug').innerHTML=''},
+  pl:id=>{C.find(l=>l.id==id).qty++;save();render()},
+  mi:id=>{const l=C.find(l=>l.id==id);if(--l.qty<1)C=C.filter(x=>x!==l);save();render()},
+  rm:id=>{C=C.filter(l=>l.id!=id);save();render()},wt:id=>askW(prod(id),true),
+  fin:()=>{if(C.length&&confirm('إنهاء العملية وتفريغ القائمة؟')){C=[];save();render()}},
+  new:()=>form(),edit:id=>form(id),
+  scf:()=>openCam(code=>{$('#fb').value=code;closeCam();navigator.vibrate?.(60)})
+};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b)A[b.dataset.a]?.(b.dataset.id,b)});
+$('#n1').innerHTML=ic('cart',22)+'<span>البيع</span>';$('#n2').innerHTML=ic('box',22)+'<span>المنتجات</span>';
+render();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>
